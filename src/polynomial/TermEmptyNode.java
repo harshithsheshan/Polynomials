@@ -30,13 +30,13 @@ class TermEmptyNode implements ListOfTerm {
   @Override
   public ListOfTerm addNext(int coefficient, int power) {
     ListOfTerm newNode;
-    newNode= new TermElementNode(coefficient,power,this);
+    newNode = new TermElementNode(coefficient, power, this);
     return newNode;
   }
 
   @Override
   public String toString() {
-    return "";
+    return toStringHelper(new StringBuilder("0"));
   }
 
   @Override
@@ -69,13 +69,23 @@ class TermEmptyNode implements ListOfTerm {
     return len;
   }
 
+  @Override
+  public ListOfTerm add(ListOfTerm other) {
+    return addAcc(other);
+  }
+
+  @Override
+  public ListOfTerm addAcc(ListOfTerm accOther) {
+    return accOther;
+  }
+
   public int getDegreeHelper(int deg) {
     return deg;
   }
 
   @Override
-  public String toStringHelper(StringBuilder str){
-    return str.toString();
+  public String toStringHelper(StringBuilder str) {
+    return str.toString().trim();
   }
 
 }

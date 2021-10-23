@@ -61,8 +61,10 @@ public interface Polynomial {
    */
   int getDegree();
 
-  public ListOfTerm getHead();
-
-  public String toString();
+  /**
+   * To get the polynomial in a string format which is human-readable.
+   * @return String consisting the terms of polynomials.
+   */
+  String toString();
 
 }

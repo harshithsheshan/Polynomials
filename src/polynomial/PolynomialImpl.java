@@ -1,5 +1,9 @@
 package polynomial;
 
+/**
+ * Represents a class which denotes a polynomial with a head which refers to a listOfTerm object.
+ * It can have 0 to n number of elements.
+ */
 public class PolynomialImpl implements Polynomial {
   private ListOfTerm head;
 
@@ -7,6 +11,33 @@ public class PolynomialImpl implements Polynomial {
     this.head = head;
   }
 
+  /**
+   * Constructor to instantiate a polynomial object from a string.
+   * @param str input string
+   */
+  public PolynomialImpl(String str) {
+    head = new TermEmptyNode();
+    String[] strArr = str.split("\\s+");
+    for (String s : strArr) {
+      String[] var = s.split("x\\^");
+      if (var.length == 2) {
+        if (Integer.parseInt(var[1]) < 0) {
+          throw new IllegalArgumentException();
+        }
+        head = head.addNext(Integer.parseInt(var[0]), Integer.parseInt(var[1]));
+      } else if (var.length == 1) {
+        head = head.addNext(Integer.parseInt(var[0]), 0);
+      } else {
+        throw new IllegalArgumentException();
+      }
+    }
+
+  }
+  //System.out.println(list);
+
+  /**
+   * default constructor which creates an empty polynomial with an emptyNode.
+   */
   public PolynomialImpl() {
     this.head = new TermEmptyNode();
   }
@@ -21,13 +52,12 @@ public class PolynomialImpl implements Polynomial {
    */
   @Override
   public Polynomial add(Polynomial other) throws IllegalArgumentException {
-    ListOfTerm res = new TermEmptyNode();
-    while (this.head != null) {
-      res.addNext(head.getCoefficient() + other.getCoefficient(head.getPower())
-          , head.getPower());
-      head = head.getNext();
+    if (!(other instanceof PolynomialImpl)) {
+      throw new IllegalArgumentException();
     }
-    return new PolynomialImpl(res);
+    TermElementNode otherClone = new TermElementNode(((PolynomialImpl) other).head.getCoefficient(),
+        ((PolynomialImpl) other).head.getPower(), ((PolynomialImpl) other).head.getNext());
+    return new PolynomialImpl(head.add(otherClone));
   }
 
   /**
@@ -39,26 +69,19 @@ public class PolynomialImpl implements Polynomial {
    */
   @Override
   public void addTerm(int coefficient, int power) throws IllegalArgumentException {
-    if (getCoefficient(power) != 0) {
-      //Polynomial aP;
-      ListOfTerm newHead;
-      newHead = new TermElementNode(coefficient, power, new TermEmptyNode());
-      this.add(new PolynomialImpl(newHead));
-    } else {
-      head = head.addNext(coefficient, power);
-    }
+    head = head.addNext(coefficient, power);
   }
 
   /**
    * Determines if this polynomial is the same as the parameter polynomial.
    *
-   * @param poly the polynomial to use
-   * @return true if this polynomial is of the same concrete type and has the same
-   * terms as the parameter, false otherwise
    */
   @Override
   public boolean isSame(Polynomial poly) {
-    return head.isSame(poly.getHead());
+    if (!(poly instanceof PolynomialImpl)) {
+      return false;
+    }
+    return head.isSame(((PolynomialImpl) poly).head);
   }
 
   /**
@@ -93,16 +116,12 @@ public class PolynomialImpl implements Polynomial {
     return head.getDegree();
   }
 
-  @Override
-  public ListOfTerm getHead() {
-    ListOfTerm res;
-    res = new TermElementNode(head.getCoefficient(), head.getPower(), head.getNext());
-    return res;
-  }
-
+  /**
+   * To convert the Polynomial to a human-readable format.
+   * @return String
+   */
   @Override
   public String toString() {
-
     return head.toString();
   }
 }

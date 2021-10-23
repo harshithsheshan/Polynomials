@@ -7,7 +7,11 @@ class TermElementNode implements ListOfTerm {
   private ListOfTerm next;
   StringBuilder str;
 
+
   public TermElementNode(int coefficient, int power, ListOfTerm next) {
+    if (power < 0) {
+      throw new IllegalArgumentException();
+    }
     this.coefficient = coefficient;
     this.next = next;
     this.power = power;
@@ -50,10 +54,18 @@ class TermElementNode implements ListOfTerm {
 
   @Override
   public ListOfTerm addNext(int coefficient, int power) {
-    ListOfTerm newNode;
-    newNode = new TermElementNode(coefficient, power, this);
+    if (power > this.power) {
+      return new TermElementNode(coefficient, power, this);
+    } else if (power < this.power) {
+      next = next.addNext(coefficient, power);
+      return this;
+    } else {
+      //System.out.println(String.format("Before: %dx^%d", this.coefficient, this.power));
+      this.coefficient += coefficient;
+      //System.out.println(String.format("Before: %dx^%d", this.coefficient, this.power));
+      return this;
+    }
     //System.out.println(newNode);
-    return newNode;
 
   }
 
@@ -96,8 +108,9 @@ class TermElementNode implements ListOfTerm {
       return this.coefficient;
     } else if (next != null) {
       return next.getCoefficientOf(power);
-    } else
+    } else {
       return 0;
+    }
   }
 
   @Override
@@ -115,15 +128,45 @@ class TermElementNode implements ListOfTerm {
   }
 
   @Override
+  public ListOfTerm add(ListOfTerm otherClone) {
+    return addAcc(otherClone);
+  }
+
+  /**
+   * Method to add two listOfTerm objects to each other.
+   *
+   * @param accOther accumulator
+   * @return accumulator string
+   */
+  @Override
+  public ListOfTerm addAcc(ListOfTerm accOther) {
+    accOther = accOther.addNext(coefficient, power);
+    return next.addAcc(accOther);
+  }
+
+  @Override
   public String toStringHelper(StringBuilder str) {
 
-    if (coefficient > 0 && str.length() != 0) {
-      str.append(String.format("+%dx^%d ", coefficient, power));
+    if (coefficient > 0) {
+      if (str.length() == 0) {
+        if (power > 0) {
+          str.append(String.format("%dx^%d ", this.coefficient, this.power));
+        } else {
+          str.append(String.format("%d ", coefficient));
+        }
+      } else {
+        if (power > 0) {
+          str.append(String.format("+%dx^%d ", this.coefficient, this.power));
+        } else {
+          str.append(String.format("+%d ", coefficient));
+        }
+      }
     } else {
-      str.append(String.format("%dx^%d ", coefficient, power));
-    }
-    if (next == null) {
-      return str.toString();
+      if (power > 0) {
+        str.append(String.format("%dx^%d ", this.coefficient, this.power));
+      } else {
+        str.append(String.format("%d ", coefficient));
+      }
     }
     return next.toStringHelper(str);
   }
